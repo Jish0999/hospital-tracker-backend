@@ -1,0 +1,32 @@
+[
+  {
+    "id": 1771965041139,
+    "name": "Akhshay Hospital",
+    "district": "Davangere",
+    "city": "Harihar",
+    "type": "Private",
+    "address": "Swamy Mata, Shimoga - Harihar - Hospet Rd, Harihar, Karnataka 577601",
+    "phone": "08192242999",
+    "lat": 14.509181071203631,
+    "lng": 75.8071129867395,
+    "specialties": [
+      "multi-speciality"
+    ],
+    "emergency24x7": true
+  },
+  {
+    "id": 1771965287231,
+    "name": "A M shivakumar ENT clinic",
+    "district": "Davangere",
+    "city": "Davangere",
+    "type": "Private",
+    "address": "AVK College Rd, Prince Jayachamaraja Wodeyar, Davanagere, Karnataka 577002",
+    "phone": "099013 13330",
+    "lat": 14.459366598943106,
+    "lng": 75.91900461826329,
+    "specialties": [
+      "ent specialist"
+    ],
+    "emergency24x7": true
+  }
+]
