@@ -58,7 +58,7 @@ Return ONLY valid JSON.`;
 });
 
 app.listen(3001, () => {
-  console.log("AI server running at http://localhost:3001");
+  console.log("AI server running at https://hospital-tracker-backend.onrender.com");
 });
 
 app.use(express.json())
