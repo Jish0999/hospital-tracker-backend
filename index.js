@@ -65,6 +65,8 @@ app.listen(3001, () => {
   console.log("AI server running at http://localhost:3001");
 });
 
+app.use(express.json())
+
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
