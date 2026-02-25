@@ -80,36 +80,34 @@ function writeDB(data) {
   fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2));
 }
 
-// GET all hospitals
 app.get("/api/hospitals", (req, res) => {
-  const data = readDB();
-  res.json(data);
+  try {
+    const data = readDB();
+    res.json(data);
+  } catch (e) {
+    res.status(500).json({ error: "Failed to read DB" });
+  }
 });
 
-// ADD hospital
 app.post("/api/hospitals", (req, res) => {
-  const hospitals = readDB();
-  const newHospital = { id: Date.now(), ...req.body };
-  hospitals.push(newHospital);
-  writeDB(hospitals);
-  res.json(newHospital);
+  try {
+    const hospitals = readDB();
+    const newHospital = { id: Date.now(), ...req.body };
+    hospitals.push(newHospital);
+    writeDB(hospitals);
+    res.json(newHospital);
+  } catch (e) {
+    res.status(500).json({ error: "Failed to write DB" });
+  }
 });
 
-// UPDATE hospital
-app.put("/api/hospitals/:id", (req, res) => {
-  const hospitals = readDB();
-  const id = Number(req.params.id);
-  const idx = hospitals.findIndex(h => h.id === id);
-  if (idx === -1) return res.status(404).json({ error: "Not found" });
-
-  hospitals[idx] = { ...hospitals[idx], ...req.body };
-  writeDB(hospitals);
-  res.json(hospitals[idx]);
-});
-
-// DELETE hospital
 app.delete("/api/hospitals/:id", (req, res) => {
-  const hospitals = readDB().filter(h => h.id !== Number(req.params.id));
-  writeDB(hospitals);
-  res.json({ ok: true });
+  try {
+    const id = Number(req.params.id);
+    const hospitals = readDB().filter(h => h.id !== id);
+    writeDB(hospitals);
+    res.json({ ok: true });
+  } catch (e) {
+    res.status(500).json({ error: "Failed to delete" });
+  }
 });
