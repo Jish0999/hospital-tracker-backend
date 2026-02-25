@@ -84,8 +84,7 @@ function writeDB(data) {
 
 app.get("/api/hospitals", (req, res) => {
   try {
-    const data = readDB();
-    res.json(data);
+    res.json(readDB());
   } catch (e) {
     res.status(500).json({ error: "Failed to read DB" });
   }
