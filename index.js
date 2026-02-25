@@ -4,12 +4,12 @@ import dotenv from "dotenv";
 import OpenAI from "openai";
 
 dotenv.config();
+const app = express();
 
 app.get("/", (req, res) => {
   res.json({ ok: true, service: "hospital-tracker-api" });
 });
 
-const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(cors({ origin: "*" }));
