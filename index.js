@@ -6,10 +6,6 @@ import OpenAI from "openai";
 dotenv.config();
 const app = express();
 
-app.get("/", (req, res) => {
-  res.json({ ok: true, service: "hospital-tracker-api" });
-});
-
 app.use(cors());
 app.use(express.json());
 app.use(cors({ origin: "*" }));
@@ -111,4 +107,8 @@ app.delete("/api/hospitals/:id", (req, res) => {
   } catch (e) {
     res.status(500).json({ error: "Failed to delete" });
   }
+});
+
+app.get("/", (req, res) => {
+  res.json({ ok: true, service: "hospital-tracker-api" });
 });
