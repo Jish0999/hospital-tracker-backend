@@ -4,6 +4,38 @@ import dotenv from "dotenv";
 import OpenAI from "openai";
 import jwt from "jsonwebtoken";
 
+app.post("/admin/login", (req, res) => {
+  const { password } = req.body;
+
+  if (!password || password !== process.env.ADMIN_PASSWORD) {
+    return res.status(401).json({ error: "Invalid password" });
+  }
+
+  const token = jwt.sign(
+    { role: "admin" },
+    process.env.JWT_SECRET,
+    { expiresIn: "12h" }
+  );
+
+  res.json({ token });
+});
+
+function requireAdmin(req, res, next) {
+  const auth = req.headers.authorization;
+  if (!auth || !auth.startsWith("Bearer ")) {
+    return res.status(401).json({ error: "Missing token" });
+  }
+
+  const token = auth.split(" ")[1];
+
+  try {
+    jwt.verify(token, process.env.JWT_SECRET);
+    next();
+  } catch (e) {
+    return res.status(401).json({ error: "Invalid or expired token" });
+  }
+}
+
 dotenv.config();
 const app = express();
 
@@ -87,7 +119,7 @@ app.get("/api/hospitals", (req, res) => {
   }
 });
 
-app.post("/api/hospitals", (req, res) => {
+app.post("/api/hospitals", requireAdmin, (req, res) => {
   try {
     const hospitals = readDB();
     const newHospital = { id: Date.now(), ...req.body };
@@ -99,7 +131,7 @@ app.post("/api/hospitals", (req, res) => {
   }
 });
 
-app.delete("/api/hospitals/:id", (req, res) => {
+app.delete("/api/hospitals/:id", requireAdmin, (req, res) => {
   try {
     const id = Number(req.params.id);
     const hospitals = readDB().filter(h => h.id !== id);
