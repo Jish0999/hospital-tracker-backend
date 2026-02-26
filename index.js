@@ -3,7 +3,19 @@ import cors from "cors";
 import dotenv from "dotenv";
 import OpenAI from "openai";
 import jwt from "jsonwebtoken";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 
+// Load env first
+dotenv.config();
+
+// Init app
+const app = express();
+app.use(cors());
+app.use(express.json());
+
+// Admin login (JWT)
 app.post("/admin/login", (req, res) => {
   const { password } = req.body;
 
@@ -20,6 +32,7 @@ app.post("/admin/login", (req, res) => {
   res.json({ token });
 });
 
+// JWT middleware
 function requireAdmin(req, res, next) {
   const auth = req.headers.authorization;
   if (!auth || !auth.startsWith("Bearer ")) {
@@ -31,27 +44,17 @@ function requireAdmin(req, res, next) {
   try {
     jwt.verify(token, process.env.JWT_SECRET);
     next();
-  } catch (e) {
+  } catch {
     return res.status(401).json({ error: "Invalid or expired token" });
   }
 }
 
-dotenv.config();
-const app = express();
-
-app.use(cors());
-app.use(express.json());
-app.use(cors({ origin: "*" }));
-
-const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
-  console.log(`Server running on ${PORT}`);
-});
-
+// OpenAI client
 const client = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 });
 
+// AI parse route
 app.post("/ai/parse", async (req, res) => {
   try {
     const { message } = req.body;
@@ -90,16 +93,7 @@ Return ONLY valid JSON.`;
   }
 });
 
-app.listen(3001, () => {
-  console.log("AI server running at https://localhost:3000");
-});
-
-app.use(express.json())
-
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
-
+// DB setup
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const DB_PATH = path.join(__dirname, "hospitals.json");
@@ -111,14 +105,16 @@ function writeDB(data) {
   fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2));
 }
 
+// Public API
 app.get("/api/hospitals", (req, res) => {
   try {
     res.json(readDB());
-  } catch (e) {
+  } catch {
     res.status(500).json({ error: "Failed to read DB" });
   }
 });
 
+// Protected Admin APIs
 app.post("/api/hospitals", requireAdmin, (req, res) => {
   try {
     const hospitals = readDB();
@@ -126,7 +122,7 @@ app.post("/api/hospitals", requireAdmin, (req, res) => {
     hospitals.push(newHospital);
     writeDB(hospitals);
     res.json(newHospital);
-  } catch (e) {
+  } catch {
     res.status(500).json({ error: "Failed to write DB" });
   }
 });
@@ -137,11 +133,18 @@ app.delete("/api/hospitals/:id", requireAdmin, (req, res) => {
     const hospitals = readDB().filter(h => h.id !== id);
     writeDB(hospitals);
     res.json({ ok: true });
-  } catch (e) {
+  } catch {
     res.status(500).json({ error: "Failed to delete" });
   }
 });
 
+// Health check
 app.get("/", (req, res) => {
   res.json({ ok: true, service: "hospital-tracker-api" });
+});
+
+// Start server (Render-safe)
+const PORT = process.env.PORT || 3001;
+app.listen(PORT, () => {
+  console.log("Server running on port", PORT);
 });
